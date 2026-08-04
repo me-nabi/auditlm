@@ -1,0 +1,21 @@
+# Byte-compiled / build artifacts
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Virtual environments
+.venv/
+venv/
+
+# Runtime data
+*.db
+*.sqlite3
+
+# Environment variables / secrets
+.env
+
+# Editor/OS
+.vscode/
+.DS_Store
