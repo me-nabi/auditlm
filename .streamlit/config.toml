@@ -1,0 +1,14 @@
+[theme]
+# The dashboard ships a light palette. These values are set explicitly (not just
+# `base`) so Streamlit's chrome and the dashboard's own tokens always agree —
+# a partial match leaves text the same colour as its background.
+base = "light"
+primaryColor = "#2a78d6"
+backgroundColor = "#fcfcfb"
+secondaryBackgroundColor = "#f0efec"
+textColor = "#0b0b0b"
+font = "sans serif"
+baseRadius = "0.6rem"
+
+[browser]
+gatherUsageStats = false
