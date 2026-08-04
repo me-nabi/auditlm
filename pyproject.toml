@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "agentaudit"
+version = "0.1.0"
+description = "Open source evaluation toolkit for LLM pipelines and agents"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+
+authors = [
+    {name = "Nabi", email = "mdehtashamnabi5981@gmail.com"}
+]
+
+keywords = ["llm", "evaluation", "hallucination", "agents", "observability"]
+
+dependencies = [
+    "streamlit>=1.32.0",
+    "openai>=1.0.0",
+    "google-generativeai>=0.5.0",
+    "pandas>=2.0.0",
+    "fastapi>=0.110.0",
+    "uvicorn>=0.29.0",
+]
+
+[project.scripts]
+agentaudit = "agentaudit.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["agentaudit*"]
+
+[project.urls]
+Homepage = "https://github.com/me-nabi/AiAudit.git"
+"Bug Tracker" = "https://github.com/me-nabi/AiAudit/issues"
