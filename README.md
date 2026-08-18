@@ -1,15 +1,20 @@
+<div align="center">
+
 # AgentAudit
 
 [![PyPI](https://img.shields.io/pypi/v/auditlm?color=blue&label=PyPI)](https://pypi.org/project/auditlm/)
-[![Python](https://img.shields.io/pypi/pyversions/auditlm?color=green&label=Python)](https://pypi.org/project/auditlm/)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-green)](https://pypi.org/project/auditlm/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/me-nabi/AiAudit/blob/main/LICENSE)
-[![GitHub](https://img.shields.io/github/stars/me-nabi/AiAudit?style=social)](https://github.com/me-nabi/AiAudit)
+[![GitHub Stars](https://img.shields.io/github/stars/me-nabi/AiAudit?style=social)](https://github.com/me-nabi/AiAudit)
 
-**Open source evaluation toolkit for LLM pipelines and AI agents.**
+### Open source evaluation toolkit for LLM pipelines and AI agents.
 
-Hallucination detection, faithfulness scoring, cost tracking, latency logging,
-regression testing, and an agent trace viewer — all running locally.
-No SaaS. No login. No data leaving your machine.
+Hallucination detection · Faithfulness scoring · Cost tracking · Latency logging
+Regression testing · Agent trace viewer
+
+**Self-hostable · No SaaS · No login · No data leaving your machine**
+
+</div>
 
 ```bash
 pip install auditlm
