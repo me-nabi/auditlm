@@ -1,21 +1,29 @@
-# Byte-compiled / build artifacts
+# Python
 __pycache__/
 *.py[cod]
 *.egg-info/
+*.egg
 build/
 dist/
 
 # Virtual environments
 .venv/
 venv/
+env/
 
-# Runtime data
-*.db
-*.sqlite3
-
-# Environment variables / secrets
+# Secrets and config
 .env
 
-# Editor/OS
-.vscode/
+# AgentAudit local data
+agentaudit.db
+*.db
+
+# User-generated starter files
+my_pipeline.py
+
+# OS
 .DS_Store
+
+# IDE
+.vscode/
+.idea/

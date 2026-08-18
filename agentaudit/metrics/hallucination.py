@@ -1,14 +1,13 @@
 # hallucination.py
 # Detects hallucinations in LLM responses using LLM-as-judge approach.
 # Score: 0.0 = fully grounded, 1.0 = fully hallucinated
+# Supports both Gemini (default) and OpenAI as judge providers.
 
 import json
 import os
 import time
 from dataclasses import dataclass, field
 from typing import Optional
-
-from openai import OpenAI
 
 
 # --------------------------------------------------------------------------- #
@@ -24,7 +23,7 @@ class Claim:
 
 @dataclass
 class HallucinationResult:
-    hallucination_score: float
+    hallucination_score: Optional[float]
     has_hallucination: bool
     claims: list[Claim] = field(default_factory=list)
     reasoning: str = ""
@@ -77,23 +76,46 @@ def _call_judge(
     context: str,
     response: str,
     model: str,
-    client: OpenAI,
+    provider: str,
+    api_key: str,
 ) -> tuple[dict, float]:
-    
-    prompt = JUDGE_PROMPT.format(context=context, response=response)
 
+    prompt = JUDGE_PROMPT.format(context=context, response=response)
     t0 = time.perf_counter()
-    completion = client.chat.completions.create(
-        model=model,
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0,
-        response_format={"type": "json_object"},
-        max_tokens=1000,
-    )
+
+    if provider == "gemini":
+        import google.generativeai as genai
+        genai.configure(api_key=api_key)
+        judge = genai.GenerativeModel(model)
+        result = judge.generate_content(prompt)
+        raw = result.text
+
+    elif provider == "openai":
+        from openai import OpenAI
+        client = OpenAI(api_key=api_key)
+        completion = client.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0,
+            response_format={"type": "json_object"},
+            max_tokens=1000,
+        )
+        raw = completion.choices[0].message.content
+
+    else:
+        raise ValueError(f"Unknown provider: {provider}. Use 'gemini' or 'openai'")
+
     latency_ms = (time.perf_counter() - t0) * 1000
 
-    raw = completion.choices[0].message.content
-    
+    # Gemini sometimes wraps JSON in markdown — strip it
+    raw = (
+        raw.strip()
+        .removeprefix("```json")
+        .removeprefix("```")
+        .removesuffix("```")
+        .strip()
+    )
+
     try:
         parsed = json.loads(raw)
     except json.JSONDecodeError as e:
@@ -109,30 +131,38 @@ def _call_judge(
 def detect_hallucination(
     response: str,
     context: str,
-    model: str = "gpt-4o-mini",
+    provider: str = "gemini",
+    model: str = "gemini-flash-latest",
     api_key: Optional[str] = None,
     threshold: float = 0.0,
 ) -> HallucinationResult:
 
     if not response or not response.strip():
         raise ValueError("response cannot be empty")
-    
+
     if not context or not context.strip():
         raise ValueError("context cannot be empty")
 
-    key = api_key or os.environ.get("OPENAI_API_KEY")
-    if not key:
-        raise EnvironmentError(
-            "No OpenAI API key found. Set OPENAI_API_KEY or pass api_key=..."
-        )
-    
-    client = OpenAI(api_key=key)
+    if provider == "gemini":
+        key = api_key or os.environ.get("GEMINI_API_KEY")
+        if not key:
+            raise EnvironmentError(
+                "No Gemini API key found. Set GEMINI_API_KEY or pass api_key=..."
+            )
+    elif provider == "openai":
+        key = api_key or os.environ.get("OPENAI_API_KEY")
+        if not key:
+            raise EnvironmentError(
+                "No OpenAI API key found. Set OPENAI_API_KEY or pass api_key=..."
+            )
+    else:
+        raise ValueError(f"Unknown provider: {provider}. Use 'gemini' or 'openai'")
 
     try:
-        raw, latency_ms = _call_judge(context, response, model, client)
+        raw, latency_ms = _call_judge(context, response, model, provider, key)
     except Exception as e:
         return HallucinationResult(
-            hallucination_score=0.0,
+            hallucination_score=None,
             has_hallucination=False,
             error=str(e),
             model_used=model,

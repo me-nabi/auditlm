@@ -232,7 +232,7 @@ def show_overview(db_path: str, t: dict) -> None:
             "faithfulness_score": st.column_config.ProgressColumn(
                 "Faithfulness ↑", min_value=0, max_value=1, format="%.2f",
             ),
-            "cost_usd": st.column_config.NumberColumn("Cost", format="$%.4f"),
+            "cost_usd": st.column_config.NumberColumn("Cost (USD)", format="$%.4f"),
             "latency_ms": st.column_config.NumberColumn("Latency", format="%.0f ms"),
         },
     )
@@ -274,8 +274,9 @@ def show_run_details(db_path: str, t: dict) -> None:
                      tone=faithfulness_tone(f))
     with c3:
         c = run["cost_usd"]
+        cost_label = "~estimated" if run.get("is_cost_estimated") else "exact"
         th.stat_card(t, "Cost", f"${c:.4f}" if c is not None else "—", tone="info",
-                     hint=f"₹{run['cost_inr']:.2f}" if run.get("cost_inr") else "")
+                     hint=f"₹{run['cost_inr']:.2f} ({cost_label})" if run.get("cost_inr") else cost_label if c is not None else "")
     with c4:
         l = run["latency_ms"]
         th.stat_card(t, "Latency", f"{l:,.0f} ms" if l is not None else "—", tone="info",

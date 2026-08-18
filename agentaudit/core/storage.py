@@ -16,7 +16,8 @@ from agentaudit.metrics.latency import LatencyResult
 # Database Setup
 # --------------------------------------------------------------------------- #
 
-DEFAULT_DB_PATH = "agentaudit.db"
+import os
+DEFAULT_DB_PATH = os.path.expanduser("~/.agentaudit/agentaudit.db")
 
 
 def init_db(db_path: str = DEFAULT_DB_PATH) -> None:
@@ -24,6 +25,7 @@ def init_db(db_path: str = DEFAULT_DB_PATH) -> None:
     Creates the SQLite database and tables if they don't exist.
     Safe to call multiple times — won't overwrite existing data.
     """
+    os.makedirs(os.path.dirname(os.path.abspath(db_path)), exist_ok=True)
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
@@ -41,7 +43,8 @@ def init_db(db_path: str = DEFAULT_DB_PATH) -> None:
             cost_inr            REAL,
             latency_ms          REAL,
             model_used          TEXT,
-            error               TEXT
+            error               TEXT,
+            is_cost_estimated   INTEGER
         )
     """)
 
@@ -56,6 +59,13 @@ def init_db(db_path: str = DEFAULT_DB_PATH) -> None:
             FOREIGN KEY (run_id) REFERENCES runs (id)
         )
     """)
+
+    # Migration: add is_cost_estimated column if missing (for databases
+    # created before this feature existed)
+    try:
+        cursor.execute("ALTER TABLE runs ADD COLUMN is_cost_estimated INTEGER")
+    except sqlite3.OperationalError:
+        pass  # column already exists — safe to ignore
 
     conn.commit()
     conn.close()
@@ -88,8 +98,8 @@ def save_run(
         INSERT INTO runs (
             pipeline_name, timestamp, query, response, context,
             hallucination_score, faithfulness_score,
-            cost_usd, cost_inr, latency_ms, model_used, error
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            cost_usd, cost_inr, latency_ms, model_used, error, is_cost_estimated
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         pipeline_name,
         datetime.utcnow().isoformat(),
@@ -103,6 +113,7 @@ def save_run(
         latency_result.latency_ms                if latency_result else None,
         hallucination_result.model_used          if hallucination_result else None,
         hallucination_result.error               if hallucination_result else None,
+        1 if cost_result and cost_result.is_estimated else 0 if cost_result else None,
     ))
 
     run_id = cursor.lastrowid

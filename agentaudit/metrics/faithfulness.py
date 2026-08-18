@@ -22,7 +22,7 @@ class Claim:
 
 @dataclass
 class FaithfulnessResult:
-    faithfulness_score: float
+    faithfulness_score: Optional[float]
     is_faithful: bool
     claims: list[Claim] = field(default_factory=list)
     reasoning: str = ""
@@ -132,7 +132,7 @@ def detect_faithfulness(
     response: str,
     context: str,
     provider: str = "gemini",
-    model: str = "gemini-1.5-flash",
+    model: str = "gemini-flash-latest",
     api_key: Optional[str] = None,
     threshold: float = 0.5,
 ) -> FaithfulnessResult:
@@ -163,8 +163,8 @@ def detect_faithfulness(
         raw, latency_ms = _call_judge(context, response, model, provider, key)
     except Exception as e:
         return FaithfulnessResult(
-            faithfulness_score=1.0,
-            is_faithful=True,
+            faithfulness_score=None,
+            is_faithful=False,
             error=str(e),
             model_used=model,
         )
