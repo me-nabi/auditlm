@@ -228,6 +228,7 @@ add_model_pricing("my-custom-model", input_price_per_1k=0.001, output_price_per_
 
 ## Project Structure
 
+```text
 agentaudit/
 ├── agentaudit/
 │ ├── init.py
@@ -249,6 +250,7 @@ agentaudit/
 ├── pyproject.toml
 └── README.md
 
+```
 
 ---
 
