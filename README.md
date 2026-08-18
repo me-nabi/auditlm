@@ -1,4 +1,9 @@
-# 🔍 AgentAudit
+# AgentAudit
+
+[![PyPI](https://img.shields.io/pypi/v/auditlm?color=blue&label=PyPI)](https://pypi.org/project/auditlm/)
+[![Python](https://img.shields.io/pypi/pyversions/auditlm?color=green&label=Python)](https://pypi.org/project/auditlm/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/me-nabi/AiAudit/blob/main/LICENSE)
+[![GitHub](https://img.shields.io/github/stars/me-nabi/AiAudit?style=social)](https://github.com/me-nabi/AiAudit)
 
 **Open source evaluation toolkit for LLM pipelines and AI agents.**
 
@@ -122,9 +127,8 @@ to a judge model (Gemini Flash by default) and asks:
 The judge returns individual claims with verdicts (SUPPORTED / UNSUPPORTED /
 CONTRADICTED), and AgentAudit calculates a score:
 
-```
 hallucination_score = unsupported claims / total claims
-```
+
 
 Scores, claims, and metadata are saved to a local SQLite database.
 Nothing leaves your machine.
@@ -219,28 +223,27 @@ add_model_pricing("my-custom-model", input_price_per_1k=0.001, output_price_per_
 
 ## Project Structure
 
-```
 agentaudit/
 ├── agentaudit/
-│   ├── __init__.py
-│   ├── cli.py                  # 5 CLI commands
-│   ├── metrics/
-│   │   ├── hallucination.py    # LLM-as-judge hallucination detection
-│   │   ├── faithfulness.py     # faithfulness scoring
-│   │   ├── cost.py             # token cost tracking (USD + INR)
-│   │   └── latency.py          # latency measurement
-│   ├── core/
-│   │   ├── wrapper.py          # @audit decorator + AgentTracer
-│   │   ├── storage.py          # SQLite storage layer
-│   │   └── regression.py       # regression testing suite
-│   └── dashboard/
-│       └── app.py              # 4-page Streamlit dashboard
+│ ├── init.py
+│ ├── cli.py # 5 CLI commands
+│ ├── metrics/
+│ │ ├── hallucination.py # LLM-as-judge hallucination detection
+│ │ ├── faithfulness.py # faithfulness scoring
+│ │ ├── cost.py # token cost tracking (USD + INR)
+│ │ └── latency.py # latency measurement
+│ ├── core/
+│ │ ├── wrapper.py # @audit decorator + AgentTracer
+│ │ ├── storage.py # SQLite storage layer
+│ │ └── regression.py # regression testing suite
+│ └── dashboard/
+│ └── app.py # 4-page Streamlit dashboard
 ├── examples/
-│   ├── rag_pipeline.py         # RAG pipeline example
-│   └── agent_trace.py          # Agent tracing example
+│ ├── rag_pipeline.py # RAG pipeline example
+│ └── agent_trace.py # Agent tracing example
 ├── pyproject.toml
 └── README.md
-```
+
 
 ---
 
