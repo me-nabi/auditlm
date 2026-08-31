@@ -356,7 +356,7 @@ What to do now:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        prog="agentaudit",
+        prog="auditlm",
         description="Open source evaluation toolkit for LLM pipelines and agents.",
     )
 

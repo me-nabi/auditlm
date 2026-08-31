@@ -1,6 +1,6 @@
 <div align="center">
 
-# AgentAudit
+# AuditLM
 
 [![PyPI](https://img.shields.io/pypi/v/auditlm?color=blue&label=PyPI)](https://pypi.org/project/auditlm/)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-green)](https://pypi.org/project/auditlm/)
@@ -18,18 +18,18 @@ Latency logging · Regression testing · Agent trace viewer
 
 ```bash
 pip install auditlm
-agentaudit init
-agentaudit dashboard
+auditlm init
+auditlm dashboard
 ```
 
 ---
 
-## Why AgentAudit?
+## Why AuditLM?
 
 32% of AI teams cite quality as their #1 barrier to production.
 Most teams ship prompts blindly or debug with print statements.
 
-AgentAudit gives you a proper evaluation layer:
+AuditLM gives you a proper evaluation layer:
 
 - **Hallucination detection** — did the model make up something not in the source?
 - **Faithfulness scoring** — did the model contradict the retrieved context?
@@ -51,7 +51,7 @@ pip install auditlm
 ### 2. Setup (one time)
 
 ```bash
-agentaudit init
+auditlm init
 ```
 
 Walks you through picking a provider (Gemini or OpenAI), pasting your API key,
@@ -79,12 +79,12 @@ def answer_question(query):
     return llm.generate(query, docs)
 ```
 
-Your code works exactly the same. AgentAudit silently evaluates every run.
+Your code works exactly the same. AuditLM silently evaluates every run.
 
 ### 4. See results
 
 ```bash
-agentaudit dashboard
+auditlm dashboard
 ```
 
 Opens a local dashboard at `localhost:8501` with four pages:
@@ -95,7 +95,7 @@ Opens a local dashboard at `localhost:8501` with four pages:
 ## Zero-code starter
 
 ```bash
-agentaudit example
+auditlm example
 ```
 
 Creates `my_pipeline.py` with clear TODO markers. Replace two lines, run it, done.
@@ -106,24 +106,24 @@ Creates `my_pipeline.py` with clear TODO markers. Replace two lines, run it, don
 
 | Command | What it does |
 |---|---|
-| `agentaudit init` | First-time setup |
-| `agentaudit dashboard` | Open Streamlit dashboard |
-| `agentaudit compare --pipeline NAME` | Compare last two runs |
-| `agentaudit config --show` | Show current config |
-| `agentaudit config --reset` | Update API key or model |
-| `agentaudit example` | Generate starter file |
+| `auditlm init` | First-time setup |
+| `auditlm dashboard` | Open Streamlit dashboard |
+| `auditlm compare --pipeline NAME` | Compare last two runs |
+| `auditlm config --show` | Show current config |
+| `auditlm config --reset` | Update API key or model |
+| `auditlm example` | Generate starter file |
 
 ---
 
 ## How it works
 
-AgentAudit uses **LLM-as-judge** — sends your pipeline's output and context
+AuditLM uses **LLM-as-judge** — sends your pipeline's output and context
 to a judge model (Gemini Flash by default) and asks:
 
 > "Extract every claim. For each, is it supported by the context?"
 
 The judge returns claims with verdicts (SUPPORTED / UNSUPPORTED / CONTRADICTED)
-and AgentAudit calculates:
+and AuditLM calculates:
 
 hallucination_score = unsupported claims / total claims
 
@@ -134,7 +134,7 @@ Everything saved to local SQLite. Nothing leaves your machine.
 
 ## Exact cost tracking (optional)
 
-By default, AgentAudit estimates tokens from text length.
+By default, AuditLM estimates tokens from text length.
 For exact cost, add one line:
 
 ```python
