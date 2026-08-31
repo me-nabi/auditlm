@@ -7,12 +7,12 @@
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/me-nabi/AiAudit/blob/main/LICENSE)
 [![GitHub Stars](https://img.shields.io/github/stars/me-nabi/AiAudit?style=social)](https://github.com/me-nabi/AiAudit)
 
-### Open source evaluation toolkit for LLM pipelines and AI agents.
+**Open source evaluation toolkit for LLM pipelines and AI agents.**
 
-Hallucination detection · Faithfulness scoring · Cost tracking · Latency logging
-Regression testing · Agent trace viewer
+Hallucination detection · Faithfulness scoring · Cost tracking
+Latency logging · Regression testing · Agent trace viewer
 
-**Self-hostable · No SaaS · No login · No data leaving your machine**
+*Self-hostable · No SaaS · No login · No data leaving your machine*
 
 </div>
 
@@ -55,11 +55,11 @@ agentaudit init
 ```
 
 Walks you through picking a provider (Gemini or OpenAI), pasting your API key,
-and choosing a judge model. Your key is saved locally at `~/.agentaudit/.env`.
+and choosing a judge model. Config saved locally at `~/.agentaudit/.env`.
 
 ### 3. Add to your pipeline
 
-**Before AgentAudit — your existing code:**
+**Before:**
 
 ```python
 def answer_question(query):
@@ -67,7 +67,7 @@ def answer_question(query):
     return llm.generate(query, docs)
 ```
 
-**After AgentAudit — 3 lines added:**
+**After — 3 lines added:**
 
 ```python
 from agentaudit import audit, set_context          # line 1
@@ -79,8 +79,7 @@ def answer_question(query):
     return llm.generate(query, docs)
 ```
 
-Your code works exactly the same. AgentAudit silently evaluates every run
-and saves the results.
+Your code works exactly the same. AgentAudit silently evaluates every run.
 
 ### 4. See results
 
@@ -88,91 +87,70 @@ and saves the results.
 agentaudit dashboard
 ```
 
-Opens a local dashboard at `http://localhost:8501` with four pages:
-
-- **Overview** — all pipelines at a glance, latest scores
-- **Run Details** — drill into any run, see every claim the judge extracted
-- **Trends** — scores over time as charts
-- **Regression** — compare two runs side by side
+Opens a local dashboard at `localhost:8501` with four pages:
+**Overview** · **Run Details** · **Trends** · **Regression**
 
 ---
 
-## Don't want to edit code? Use the starter file.
+## Zero-code starter
 
 ```bash
 agentaudit example
 ```
 
-Creates `my_pipeline.py` with clear TODO markers. Open it, replace two lines
-with your retrieval and AI code, run it. No guessing where things go.
+Creates `my_pipeline.py` with clear TODO markers. Replace two lines, run it, done.
 
 ---
 
-## CLI Commands
+## CLI
 
 | Command | What it does |
 |---|---|
-| `agentaudit init` | First-time setup — provider, API key, model |
-| `agentaudit dashboard` | Open the Streamlit dashboard |
-| `agentaudit compare --pipeline my_pipeline` | Compare last two runs in terminal |
-| `agentaudit config --show` | Show current config (key is masked) |
+| `agentaudit init` | First-time setup |
+| `agentaudit dashboard` | Open Streamlit dashboard |
+| `agentaudit compare --pipeline NAME` | Compare last two runs |
+| `agentaudit config --show` | Show current config |
 | `agentaudit config --reset` | Update API key or model |
-| `agentaudit example` | Generate a starter pipeline file |
+| `agentaudit example` | Generate starter file |
 
 ---
 
-## How It Works
+## How it works
 
-AgentAudit uses **LLM-as-judge** — it sends your pipeline's output and context
+AgentAudit uses **LLM-as-judge** — sends your pipeline's output and context
 to a judge model (Gemini Flash by default) and asks:
 
-> "Extract every claim from this response.
-> For each claim, is it supported by the context?"
+> "Extract every claim. For each, is it supported by the context?"
 
-The judge returns individual claims with verdicts (SUPPORTED / UNSUPPORTED /
-CONTRADICTED), and AgentAudit calculates a score:
+The judge returns claims with verdicts (SUPPORTED / UNSUPPORTED / CONTRADICTED)
+and AgentAudit calculates:
 
 hallucination_score = unsupported claims / total claims
 
 
-Scores, claims, and metadata are saved to a local SQLite database.
-Nothing leaves your machine.
+Everything saved to local SQLite. Nothing leaves your machine.
 
 ---
 
-## Optional: Exact Cost Tracking
+## Exact cost tracking (optional)
 
-By default, AgentAudit estimates token counts from text length (~4 chars per token).
-For exact cost, add one line inside your function:
+By default, AgentAudit estimates tokens from text length.
+For exact cost, add one line:
 
 ```python
-from agentaudit import audit, set_context, set_tokens
+from agentaudit import set_tokens
 
-@audit(name="my_pipeline")
-def my_pipeline(query):
-    docs = retriever.search(query)
-    set_context(docs)
-
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[{"role": "user", "content": query}],
-    )
-
-    set_tokens(
-        input=response.usage.prompt_tokens,
-        output=response.usage.completion_tokens,
-    )
-
-    return response.choices[0].message.content
+set_tokens(
+    input=response.usage.prompt_tokens,
+    output=response.usage.completion_tokens,
+)
 ```
 
-The dashboard labels costs as "estimated" or "exact" so you always know which you're seeing.
+Dashboard labels costs as **estimated** or **exact**.
 
 ---
 
-## Agent Tracing
-
-For agent workflows with tool calls:
+## Agent tracing
 
 ```python
 from agentaudit import AgentTracer
@@ -180,81 +158,32 @@ from agentaudit import AgentTracer
 with AgentTracer("my_agent") as tracer:
     result = search_tool(query)
     tracer.log_tool_call("search", input=query, output=result)
-
-    answer = llm.generate(query, result)
     tracer.log_response(answer)
 ```
 
 ---
 
-## Supported Judge Models
+## Supported judge models
 
-AgentAudit supports any model from these providers as the evaluation judge:
+**Google Gemini** (free tier available):
+gemini-flash-latest · gemini-3.5-flash · gemini-3-flash · gemini-3.1-pro
 
-**Google Gemini** (free tier available)
-- gemini-flash-latest (default)
-- gemini-3.5-flash
-- gemini-3-flash
-- gemini-3.1-pro
+**OpenAI**:
+gpt-4o-mini · gpt-4o
 
-**OpenAI**
-- gpt-4o-mini
-- gpt-4o
+Custom models: `add_model_pricing("model", input_per_1k, output_per_1k)`
 
 ---
 
-## Cost Tracking Covers These Models
+## Tech stack
 
-Built-in pricing for common models. Add custom models at runtime:
-
-```python
-from agentaudit import calculate_cost
-from agentaudit.metrics.cost import add_model_pricing
-
-add_model_pricing("my-custom-model", input_price_per_1k=0.001, output_price_per_1k=0.003)
-```
-
----
-
-## Tech Stack
-
-- **Python** — core metrics engine
-- **SQLite** — local storage, zero setup
-- **Streamlit** — dashboard
-- **LLM-as-judge** — Gemini Flash or GPT-4o-mini for scoring
-- **pyproject.toml** — proper Python packaging
-
----
-
-## Project Structure
-
-agentaudit/
-├── agentaudit/
-│ ├── init.py
-│ ├── cli.py # 5 CLI commands
-│ ├── metrics/
-│ │ ├── hallucination.py # LLM-as-judge hallucination detection
-│ │ ├── faithfulness.py # faithfulness scoring
-│ │ ├── cost.py # token cost tracking (USD + INR)
-│ │ └── latency.py # latency measurement
-│ ├── core/
-│ │ ├── wrapper.py # @audit decorator + AgentTracer
-│ │ ├── storage.py # SQLite storage layer
-│ │ └── regression.py # regression testing suite
-│ └── dashboard/
-│ └── app.py # 4-page Streamlit dashboard
-├── examples/
-│ ├── rag_pipeline.py # RAG pipeline example
-│ └── agent_trace.py # Agent tracing example
-├── pyproject.toml
-└── README.md
-
+Python · SQLite · Streamlit · LLM-as-judge · pyproject.toml
 
 ---
 
 ## Contributing
 
-PRs welcome. If you find a bug or want a feature, open an issue.
+PRs welcome. Open an issue for bugs or feature requests.
 
 ## License
 
